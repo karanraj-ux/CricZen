@@ -50,13 +50,15 @@ fun SettingsBottomSheet(
     onSaveIdol: (String) -> Unit,
     onSaveWallpaper: (String) -> Unit,
     onEditPreferences: () -> Unit,
-    onSaveMode: (String) -> Unit
+    onSaveMode: (String) -> Unit,
+    onSaveDataSaverMode: (Boolean) -> Unit
 ) {
     ModalBottomSheet(onDismissRequest = onDismiss, containerColor = MaterialTheme.colorScheme.surface) {
         var idolName by remember { mutableStateOf(state.idolName) }
         var showFaq by remember { mutableStateOf(false) }
         var showAbout by remember { mutableStateOf(false) }
         var appMode by remember { mutableStateOf(state.appMode) }
+        var dataSaverMode by remember { mutableStateOf(state.dataSaverMode) }
         
         val imagePickerLauncher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.GetContent()
@@ -101,7 +103,9 @@ fun SettingsBottomSheet(
                 }
             }
             
-            Spacer(modifier = Modifier.height(24.dp))
+            
+            
+
             
             Spacer(modifier = Modifier.height(16.dp))
             val context = LocalContext.current

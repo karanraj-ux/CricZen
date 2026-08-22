@@ -27,7 +27,9 @@ sealed interface CricketUiState {
         val appMode: String = "Fan Mode",
         val pinnedMatchId: String = "",
         val playerNews: List<com.example.model.NewsArticle> = emptyList(),
-        val selectedNewsUrl: String? = null
+        val selectedNewsUrl: String? = null,
+        val dataSaverMode: Boolean = false,
+        val matchPredictions: Map<String, Int> = emptyMap()
     ) : CricketUiState
     data class Error(val message: String) : CricketUiState
 }
@@ -69,12 +71,15 @@ val uiState: StateFlow<CricketUiState> = combine(
             combine(
                 onboardingManager.wallpaperUri,
                 onboardingManager.appMode,
-                onboardingManager.widgetPinnedMatchId
-            ) { wp, mode, pinned ->
-                Triple(wp, mode, pinned)
+                onboardingManager.widgetPinnedMatchId,
+                onboardingManager.dataSaverMode
+            ,
+                onboardingManager.matchPredictions
+            ) { wp, mode, pinned, dataSaver, preds ->
+                FiveTuple(wp, mode, pinned, dataSaver, preds)
             }
-        ) { id, time, idol, triple ->  
-            SixTuple(id, time, idol, triple.first, triple.second, triple.third)
+        ) { id, time, idol, four ->  
+             EightTuple(id, time, idol, four.a, four.b, four.c, four.d, four.e)
         }
     ) { fetchResult, queryNewsAndUrl, preferredTeams, preferredPlayers, extra ->
         val query = queryNewsAndUrl.first
@@ -86,6 +91,8 @@ val uiState: StateFlow<CricketUiState> = combine(
         val wallpaperUri = extra.d
         val appMode = extra.e
         val pinnedMatchId = extra.f
+        val isDataSaver = extra.g
+        val predictions = extra.h
         
         when (fetchResult) {
             is FetchResult.Loading -> CricketUiState.Loading
@@ -129,7 +136,9 @@ val uiState: StateFlow<CricketUiState> = combine(
                     appMode = appMode,
                     pinnedMatchId = pinnedMatchId,
                     playerNews = playerNews,
-                    selectedNewsUrl = selectedNewsUrl
+                    selectedNewsUrl = selectedNewsUrl,
+                    dataSaverMode = isDataSaver,
+                    matchPredictions = predictions
                 )
             }
         }
@@ -152,8 +161,14 @@ val uiState: StateFlow<CricketUiState> = combine(
         }
         
         viewModelScope.launch {
-            onboardingManager.idolName.collectLatest { name ->
-                fetchPlayerNews(name)
+            combine(
+                onboardingManager.preferredTeams,
+                onboardingManager.preferredPlayers,
+                onboardingManager.idolName
+            ) { teams, players, idol ->
+                Triple(teams, players, idol)
+            }.collectLatest { (teams, players, idol) ->
+                fetchPersonalizedNews(teams, players, idol)
             }
         }
         
@@ -193,7 +208,14 @@ val uiState: StateFlow<CricketUiState> = combine(
                 try {
                     val prefPlayers = onboardingManager.preferredPlayers.first()
                     val prefTeams = onboardingManager.preferredTeams.first()
-                    repository.syncMatches(prefPlayers, prefTeams)
+                    val isDataSaver = onboardingManager.dataSaverMode.first()
+                    val pinnedMatchId = onboardingManager.widgetPinnedMatchId.first()
+                    
+                    if (isDataSaver && pinnedMatchId.isNotEmpty()) {
+                        repository.syncSniperMatch(pinnedMatchId, prefPlayers)
+                    } else {
+                        repository.syncMatches(prefPlayers, prefTeams)
+                    }
                     
                     _isOffline.value = false
                     val format = java.text.SimpleDateFormat("hh:mm a", java.util.Locale.getDefault())
@@ -214,7 +236,18 @@ val uiState: StateFlow<CricketUiState> = combine(
                         _fetchResult.value = FetchResult.Error(e.message ?: "Network Error")
                     }
                 }
-                delay(30000)
+                val isDataSaver = onboardingManager.dataSaverMode.first()
+                
+                // Sleep Mode for Dead Matches
+                val currentMatches = (_fetchResult.value as? FetchResult.Success)?.matches ?: emptyList()
+                val hasLiveMatch = currentMatches.any { it.matchState.contains("LIVE", true) || it.matchState.contains("IN PROGRESS", true) }
+                
+                val fetchDelay = when {
+                    !hasLiveMatch && currentMatches.isNotEmpty() -> 300000L // 5 minutes sleep if no live matches
+                    isDataSaver -> 120000L
+                    else -> 30000L
+                }
+                delay(fetchDelay)
             }
         }
     }
@@ -237,13 +270,17 @@ val uiState: StateFlow<CricketUiState> = combine(
     fun updateIdolName(name: String) {
         viewModelScope.launch {
             onboardingManager.saveIdolName(name)
-            fetchPlayerNews(name)
+            fetchPersonalizedNews(idol = name)
         }
     }
     
-    fun fetchPlayerNews(name: String) {
+    fun fetchPersonalizedNews(teams: Set<String> = emptySet(), players: Set<String> = emptySet(), idol: String = "") {
         viewModelScope.launch {
-            _playerNews.value = repository.getPlayerNews(name)
+            val allKeywords = mutableSetOf<String>()
+            if (idol.isNotBlank()) allKeywords.add(idol)
+            allKeywords.addAll(teams)
+            allKeywords.addAll(players)
+            _playerNews.value = repository.getPersonalizedNews(allKeywords)
         }
     }
     
@@ -271,6 +308,19 @@ val uiState: StateFlow<CricketUiState> = combine(
     
     fun updateSelectedNewsUrl(url: String?) {
         _selectedNewsUrl.value = url
+    }
+
+    
+    fun saveMatchPrediction(matchId: String, prediction: Int) {
+        viewModelScope.launch {
+            onboardingManager.saveMatchPrediction(matchId, prediction)
+        }
+    }
+
+    fun updateDataSaverMode(enabled: Boolean) {
+        viewModelScope.launch {
+            onboardingManager.saveDataSaverMode(enabled)
+        }
     }
 
     fun updateAppMode(mode: String) {
@@ -329,3 +379,6 @@ val uiState: StateFlow<CricketUiState> = combine(
 
 data class FiveTuple<A, B, C, D, E>(val a: A, val b: B, val c: C, val d: D, val e: E)
 data class SixTuple<A, B, C, D, E, F>(val a: A, val b: B, val c: C, val d: D, val e: E, val f: F)
+
+data class EightTuple<A, B, C, D, E, F, G, H>(val a: A, val b: B, val c: C, val d: D, val e: E, val f: F, val g: G, val h: H)
+

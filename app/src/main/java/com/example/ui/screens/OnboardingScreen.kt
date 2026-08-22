@@ -439,7 +439,7 @@ fun OnboardingScreen(
                     )
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        text = "Unlike cluttered apps like Cricbuzz, CricZen filters the noise. We bring you priority news, a 'My Team' focus, and your idol on your wallpaper.", 
+                        text = "100% Ad-free, lightning-fast on bad networks, and completely personalized for you.", 
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onPrimaryContainer,
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center
@@ -458,14 +458,14 @@ fun OnboardingScreen(
                     Icon(Icons.Default.PictureInPicture, contentDescription = "PiP", modifier = Modifier.size(48.dp), tint = MaterialTheme.colorScheme.onSecondaryContainer)
                     Spacer(Modifier.height(16.dp))
                     Text(
-                        text = "Picture-in-Picture (PiP)", 
+                        text = "Pop-out Score & Widgets", 
                         fontWeight = FontWeight.ExtraBold, 
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSecondaryContainer
                     )
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        text = "Minimize any match into a floating widget while you use other apps!", 
+                        text = "Use Pop-out score while in other apps, or long-press your home screen to add the Live Widget!", 
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSecondaryContainer,
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center

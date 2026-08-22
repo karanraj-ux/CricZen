@@ -32,6 +32,7 @@ import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.padding
+import androidx.glance.layout.height
 import androidx.glance.layout.size
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
@@ -73,6 +74,7 @@ class MatchGlanceWidget : GlanceAppWidget() {
                 }
             }
 
+            
             Column(
                 modifier = GlanceModifier
                     .fillMaxSize()
@@ -101,14 +103,8 @@ class MatchGlanceWidget : GlanceAppWidget() {
                             .clickable(actionRunCallback<RefreshAction>()),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Image(
-                            provider = ImageProvider(android.R.drawable.ic_popup_sync),
-                            contentDescription = "Refresh",
-                            modifier = GlanceModifier.size(12.dp)
-                        )
                         Text(
-                            text = "Tap to refresh",
-                            modifier = GlanceModifier.padding(start = 4.dp),
+                            text = "Refresh",
                             style = TextStyle(
                                 color = androidx.glance.color.ColorProvider(day = Color.Black, night = Color.Black),
                                 fontSize = 10.sp,
@@ -121,18 +117,35 @@ class MatchGlanceWidget : GlanceAppWidget() {
                 Row(modifier = GlanceModifier.fillMaxWidth().defaultWeight().padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                     Column(modifier = GlanceModifier.defaultWeight()) {
                         Text(text = team1, style = TextStyle(color = androidx.glance.color.ColorProvider(day = PremiumTextDark, night = Color.White), fontSize = 12.sp, fontWeight = FontWeight.Bold))
-                        Text(text = score1, style = TextStyle(color = androidx.glance.color.ColorProvider(day = PremiumTextDark, night = Color.White), fontSize = 18.sp, fontWeight = FontWeight.Bold))
+                        Text(text = score1, style = TextStyle(color = androidx.glance.color.ColorProvider(day = PremiumTextDark, night = Color.White), fontSize = 16.sp, fontWeight = FontWeight.Bold))
                         Text(text = overs1, style = TextStyle(color = androidx.glance.color.ColorProvider(day = PremiumTextMedium, night = Color(0xFFAEAEC0)), fontSize = 10.sp))
                     }
                     
-                    Text(text = "VS", modifier = GlanceModifier.padding(horizontal = 8.dp), style = TextStyle(color = androidx.glance.color.ColorProvider(day = PremiumTextMedium, night = Color(0xFFAEAEC0)), fontSize = 10.sp, fontWeight = FontWeight.Bold))
+                    Column(modifier = GlanceModifier.defaultWeight(), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(text = if (score2.isNotBlank() && score2 != "-") "TARGET" else "PROJ", style = TextStyle(color = androidx.glance.color.ColorProvider(day = PremiumTextMedium, night = Color(0xFFAEAEC0)), fontSize = 10.sp, fontWeight = FontWeight.Bold))
+                        Text(text = "vs", style = TextStyle(color = androidx.glance.color.ColorProvider(day = PremiumTextMedium, night = Color(0xFFAEAEC0)), fontSize = 12.sp, fontWeight = FontWeight.Bold))
+                    }
                     
                     Column(modifier = GlanceModifier.defaultWeight(), horizontalAlignment = Alignment.End) {
                         Text(text = team2, style = TextStyle(color = androidx.glance.color.ColorProvider(day = PremiumTextDark, night = Color.White), fontSize = 12.sp, fontWeight = FontWeight.Bold))
-                        Text(text = score2, style = TextStyle(color = androidx.glance.color.ColorProvider(day = PremiumTextDark, night = Color.White), fontSize = 18.sp, fontWeight = FontWeight.Bold))
+                        Text(text = score2, style = TextStyle(color = androidx.glance.color.ColorProvider(day = PremiumTextDark, night = Color.White), fontSize = 16.sp, fontWeight = FontWeight.Bold))
                         Text(text = overs2, style = TextStyle(color = androidx.glance.color.ColorProvider(day = PremiumTextMedium, night = Color(0xFFAEAEC0)), fontSize = 10.sp))
                     }
                 }
+                
+                Spacer(modifier = GlanceModifier.height(8.dp))
+                // Progress Bar Background
+                Row(modifier = GlanceModifier.fillMaxWidth().height(8.dp).background(Color(0xFFE0E0E0)).cornerRadius(4.dp)) {
+                     // Can't do complex widths in Glance easily without weight, so we'll just show the empty track for now, 
+                     // or a simple representation.
+                }
+                
+                // Zenny Watch-Along Text
+                Text(
+                    text = if (isLive) "🤖 Zenny: The chase is on!" else "🤖 " + com.example.util.ZennyMemoryBank.getMemory(),
+                    modifier = GlanceModifier.padding(top = 8.dp),
+                    style = TextStyle(color = androidx.glance.color.ColorProvider(day = PremiumTextDark, night = Color(0xFFAEAEC0)), fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                )
             }
         }
     }

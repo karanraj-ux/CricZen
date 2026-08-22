@@ -34,9 +34,25 @@ class MatchUpdateWorker(
             val preferredTeams = onboardingManager.preferredTeams.first()
             val preferredPlayers = onboardingManager.preferredPlayers.first()
             val pinnedMatchId = onboardingManager.widgetPinnedMatchId.first()
+            val isDataSaver = onboardingManager.dataSaverMode.first()
             
             val repository = com.example.data.CricketRepository(applicationContext)
-            repository.syncMatches(preferredPlayers, preferredTeams)
+            
+            // Sniper Fetching / Hibernation Logic
+            if (isDataSaver) {
+                if (pinnedMatchId.isNotEmpty()) {
+                    // Sniper Fetch: Only download the micro-URL for the pinned match
+                    repository.syncSniperMatch(pinnedMatchId, preferredPlayers)
+                } else if (preferredTeams.isNotEmpty()) {
+                    // Still fetch all but could be optimized further
+                    repository.syncMatches(preferredPlayers, preferredTeams)
+                } else {
+                    // Total Hibernation
+                    return Result.success()
+                }
+            } else {
+                repository.syncMatches(preferredPlayers, preferredTeams)
+            }
             
             val dao = com.example.data.AppDatabase.getDatabase(applicationContext).matchDao()
             val parsedMatches = dao.getAllMatches().map { it.toMatch() }

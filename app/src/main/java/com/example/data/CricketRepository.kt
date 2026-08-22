@@ -41,6 +41,39 @@ class CricketRepository(private val context: android.content.Context) {
         }.flowOn(Dispatchers.IO)
     }
 
+        suspend fun syncSniperMatch(matchId: String, preferredPlayers: Set<String>) = withContext(Dispatchers.IO) {
+        val rawItems = RssParser.fetchSniperMatch(matchId)
+        if (rawItems.isEmpty()) return@withContext
+        
+        val parsedMatches = rawItems.map { mapItemToMatch(it) }.map { match ->
+            val highlightStats = mutableListOf<String>()
+            if (match.notablePerformances.isNotEmpty()) {
+                val statsArray = match.notablePerformances.split(" | ")
+                for (stat in statsArray) {
+                    for (fav in preferredPlayers) {
+                        if (stat.contains(fav, ignoreCase = true)) {
+                            highlightStats.add("★ $stat")
+                            break
+                        }
+                    }
+                }
+            }
+            val finalPerformances = if (highlightStats.isNotEmpty()) {
+                highlightStats.joinToString(" • ")
+            } else if (match.notablePerformances.isNotEmpty()) {
+                match.notablePerformances
+            } else {
+                ""
+            }
+            match.copy(notablePerformances = finalPerformances)
+        }
+        
+        val rssMatches = deduplicateMatches(parsedMatches)
+        if (rssMatches.isNotEmpty()) {
+            dao.insertMatches(rssMatches.map { it.toEntity() })
+        }
+    }
+
     suspend fun syncMatches(preferredPlayers: Set<String>, preferredTeams: Set<String>) = withContext(Dispatchers.IO) {
         val rawItems = RssParser.fetchLiveMatches()
         if (rawItems.isEmpty()) return@withContext
@@ -415,7 +448,7 @@ class CricketRepository(private val context: android.content.Context) {
         return@withContext players.toList().sorted()
     }
 
-    suspend fun getPlayerNews(playerName: String): List<com.example.model.NewsArticle> {
-        return RssParser.fetchPlayerNews(playerName)
+    suspend fun getPersonalizedNews(keywords: Set<String>): List<com.example.model.NewsArticle> {
+        return RssParser.fetchPersonalizedNews(keywords)
     }
 }

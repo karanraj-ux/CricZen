@@ -3,22 +3,24 @@
 
 ![CricZen Banner](assets/feature_graphic.png)
 
-CricZen is a minimalist, hyper-personalized cricket companion designed to cut through the noise of generic sports apps. Instead of overwhelming you with endless tabs, betting ads, and clutter, CricZen focuses strictly on what matters: **Your Teams. Your Players. Your Scores.**
+CricZen is a minimalist, hyper-personalized cricket companion designed to cut through the noise of generic sports apps. Built specifically for Indian students and fans, it prioritizes **extreme battery efficiency, ultra-low data usage, and ad-free focus**.
 
-Built with modern Android standards, it offers a premium, ad-free experience tailored for fans who want to feel closer to the game without the distraction.
+Instead of overwhelming you with endless tabs and betting ads, CricZen focuses strictly on what matters: **Your Teams. Your Players. Your Scores.**
 
 ## Why CricZen? ✨
-- 🧘 **Zero Clutter**: No bloated menus, no irrelevant news. Just a clean, zen-like interface dedicated to the matches you care about.
-- 🎯 **Hyper-Personalized "My Team" Focus**: Only follow India? Or maybe just CSK? CricZen prioritizes your selected teams and filters out the noise.
+- 🧘 **Zero Clutter**: No bloated menus, no irrelevant news. Just a clean, zen-like interface.
+- 🔋 **Ultra-Low Data & Battery Mode**: Features a custom "Sniper Fetch" engine and "Memory Lock" anti-spam protocol. In Data Saver mode, the app downloads micro-scorecards (<1KB) and completely hibernates when there is no new action, saving 100% of background data and battery.
+- 🎯 **Hyper-Personalized "My Team" Focus**: Pick your teams and let the app filter out the noise.
+- 🤖 **Zenny's Memory Bank**: A bundled offline cricket historian! When no matches are live, or during rain delays, Zenny shares "On This Day" milestones and specific trivia about your favorite players using zero internet data.
 - 🖼️ **Idol Wallpaper & Fan Mode**: Set your favorite player as your app background.
-- 📰 **Priority-Based News**: Read news tailored specifically to your chosen teams and idol.
 - 📱 **Home Screen Widget**: Track live scores directly from your home screen with a beautiful Glance widget.
-- 🪟 **Picture-in-Picture (PiP)**: Keep a floating mini-scorecard active while you chat or browse other apps.
+- 🪟 **Picture-in-Picture (PiP)**: Keep a floating mini-scorecard active while you chat or browse.
+- 📊 **Glassmorphism Target Track**: Watch run chases on a premium visual progress bar that glows when the chase gets tense and bursts in gold when a team crushes the target!
 
 ## Features at a Glance 🚀
 * **Modern UI:** Built fully in Jetpack Compose with Material 3.
 * **Offline Resilience:** Room database caching keeps your scores accessible in poor networks.
-* **Smart Parsing:** Efficiently parses RSS feeds to extract only the most relevant match data.
+* **Smart Parsing:** Efficiently parses live XML/HTML to extract only the most relevant match data.
 
 ## Screenshots 📸
 | Dashboard | Fan Mode & News | Home Widget & PiP |
@@ -30,7 +32,7 @@ CricZen is fully open-source and built as a pristine example of modern Android d
 * **UI:** Jetpack Compose, Glance (App Widgets)
 * **Architecture:** MVVM, Clean Architecture, Repository Pattern
 * **Local Storage:** Room Database, Preferences DataStore
-* **Networking:** Retrofit, OkHttp, XML Pull Parsing
+* **Networking:** Retrofit, OkHttp, Custom Sniper HTML/XML Parsing
 * **Background Tasks:** WorkManager for Widget Updates
 
 ### Build Instructions

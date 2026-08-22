@@ -28,6 +28,7 @@ class OnboardingManager(private val context: Context) {
         val APP_OPENS_COUNT = intPreferencesKey("app_opens_count")
         val FEEDBACK_DISMISSED = booleanPreferencesKey("feedback_dismissed")
         val WIDGET_PINNED_MATCH_ID = stringPreferencesKey("widget_pinned_match_id")
+        val MATCH_PREDICTIONS = stringPreferencesKey("match_predictions")
         val WIDGET_PINNED_TEAM1 = stringPreferencesKey("widget_pinned_team1")
         val WIDGET_PINNED_SCORE1 = stringPreferencesKey("widget_pinned_score1")
         val WIDGET_PINNED_OVERS1 = stringPreferencesKey("widget_pinned_overs1")
@@ -36,6 +37,7 @@ class OnboardingManager(private val context: Context) {
         val WIDGET_PINNED_OVERS2 = stringPreferencesKey("widget_pinned_overs2")
         val WIDGET_PINNED_STATUS = stringPreferencesKey("widget_pinned_status")
         val NOTIFIED_MATCHES = stringSetPreferencesKey("notified_matches")
+        val DATA_SAVER_MODE = booleanPreferencesKey("data_saver_mode")
     }
 
     val isOnboardingCompleted: Flow<Boolean> = context.dataStore.data.map { preferences ->
@@ -44,6 +46,10 @@ class OnboardingManager(private val context: Context) {
 
     val notifiedMatches: Flow<Set<String>> = context.dataStore.data.map { preferences ->
         preferences[NOTIFIED_MATCHES] ?: emptySet()
+    }
+
+    val dataSaverMode: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[DATA_SAVER_MODE] ?: false
     }
 
     val preferredTeams: Flow<Set<String>> = context.dataStore.data.map { preferences ->
@@ -174,10 +180,39 @@ class OnboardingManager(private val context: Context) {
         }
     }
 
+    suspend fun saveDataSaverMode(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[DATA_SAVER_MODE] = enabled
+        }
+    }
+
     suspend fun addNotifiedMatch(matchKey: String) {
         context.dataStore.edit { preferences ->
             val current = preferences[NOTIFIED_MATCHES] ?: emptySet()
             preferences[NOTIFIED_MATCHES] = current + matchKey
+        }
+    }
+
+    val matchPredictions: Flow<Map<String, Int>> = context.dataStore.data.map { pref ->
+        val json = pref[MATCH_PREDICTIONS] ?: "{}"
+        try {
+            val jsonObject = org.json.JSONObject(json)
+            val map = mutableMapOf<String, Int>()
+            val keys = jsonObject.keys()
+            while (keys.hasNext()) {
+                val key = keys.next()
+                map[key] = jsonObject.getInt(key)
+            }
+            map
+        } catch(e: Exception) { emptyMap() }
+    }
+    
+    suspend fun saveMatchPrediction(matchId: String, prediction: Int) {
+        context.dataStore.edit { pref ->
+            val json = pref[MATCH_PREDICTIONS] ?: "{}"
+            val jsonObject = try { org.json.JSONObject(json) } catch(e: Exception) { org.json.JSONObject() }
+            jsonObject.put(matchId, prediction)
+            pref[MATCH_PREDICTIONS] = jsonObject.toString()
         }
     }
 }

@@ -240,7 +240,9 @@ fun CricketApp(
                             onSearchQueryChange = { viewModel.updateSearchQuery(it) },
                             onSettingsClick = { showSettings = true },
                             onFanModeClick = { showFanModeDialog = true },
-                            onToggleMode = { viewModel.updateAppMode(if (state.appMode == "Fan Mode") "Standard" else "Fan Mode") }
+                            onToggleMode = { viewModel.updateAppMode(if (state.appMode == "Fan Mode") "Standard" else "Fan Mode") },
+                            onToggleDataSaver = { viewModel.updateDataSaverMode(!state.dataSaverMode) },
+                            onSavePrediction = { matchId, pred -> viewModel.saveMatchPrediction(matchId, pred) }
                         )
                     }
                     
@@ -263,7 +265,8 @@ fun CricketApp(
                                 showSettings = false
                                 forceOnboarding = true 
                             },
-                            onSaveMode = { viewModel.updateAppMode(it) }
+                            onSaveMode = { viewModel.updateAppMode(it) },
+                            onSaveDataSaverMode = { viewModel.updateDataSaverMode(it) }
                         )
                     }
                 }

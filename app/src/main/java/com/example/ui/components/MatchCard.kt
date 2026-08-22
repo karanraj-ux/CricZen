@@ -39,7 +39,7 @@ import com.example.ui.components.*
 import com.example.ui.screens.*
 
 @Composable
-fun MatchCard(match: Match, isPreferred: Boolean, isPinned: Boolean = false, onPinClick: (() -> Unit)? = null, onClick: () -> Unit) {
+fun MatchCard(match: Match, isPreferred: Boolean, isPinned: Boolean = false, onPinClick: (() -> Unit)? = null, customPrediction: Int? = null, onPredictionClick: (() -> Unit)? = null, onClick: () -> Unit) {
     var showPinInfo by remember { mutableStateOf(false) }
 
     if (showPinInfo) {
@@ -208,9 +208,7 @@ fun MatchCard(match: Match, isPreferred: Boolean, isPinned: Boolean = false, onP
             }
 
             Spacer(modifier = Modifier.height(12.dp))
-            TeamScoreRow(teamName = match.team1, score = match.score1, overs = match.overs1, seriesName = match.seriesName)
-            Spacer(modifier = Modifier.height(12.dp))
-            TeamScoreRow(teamName = match.team2, score = match.score2, overs = match.overs2, seriesName = match.seriesName)
+            ChaseProgressBar(match = match, customPrediction = customPrediction, onPredictionClick = onPredictionClick)
             Spacer(modifier = Modifier.height(12.dp))
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             Spacer(modifier = Modifier.height(8.dp))

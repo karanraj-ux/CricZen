@@ -46,11 +46,50 @@ fun MatchListScreen(
     onSearchQueryChange: (String) -> Unit,
     onSettingsClick: () -> Unit,
     onFanModeClick: () -> Unit,
-    onToggleMode: () -> Unit
+    onToggleMode: () -> Unit,
+    onToggleDataSaver: () -> Unit,
+    onSavePrediction: (String, Int) -> Unit
 ) {
     val tabs = listOf("All Matches", "My Teams")
     var selectedTabIndex by remember { mutableStateOf(0) }
     var showModeTooltip by remember { mutableStateOf(false) }
+    var showPredictionDialog by remember { mutableStateOf<Match?>(null) }
+    var predictionInput by remember { mutableStateOf("") }
+
+
+    
+    if (showPredictionDialog != null) {
+        AlertDialog(
+            onDismissRequest = { showPredictionDialog = null },
+            title = { Text("Set Target Prediction", fontWeight = FontWeight.ExtraBold) },
+            text = { 
+                Column {
+                    Text("Enter your predicted target score for this match.", style = MaterialTheme.typography.bodyMedium)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = predictionInput,
+                        onValueChange = { predictionInput = it },
+                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
+                        label = { Text("Target Score") }
+                    )
+                }
+            },
+            confirmButton = {
+                Button(onClick = {
+                    val pred = predictionInput.toIntOrNull() ?: 250
+                    onSavePrediction(showPredictionDialog!!.id, pred)
+                    showPredictionDialog = null
+                }) {
+                    Text("Save")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showPredictionDialog = null }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
 
     if (showModeTooltip) {
         AlertDialog(
@@ -129,6 +168,15 @@ fun MatchListScreen(
                     }
                     Spacer(modifier = Modifier.width(4.dp))
                     
+
+                    IconButton(
+                        onClick = { onToggleDataSaver() },
+                        modifier = Modifier.size(32.dp)
+                    ) {
+                        Icon(if (state.dataSaverMode) Icons.Default.SignalCellularOff else Icons.Default.SignalCellular4Bar, contentDescription = "Data Saver", tint = if (state.dataSaverMode) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary)
+                    }
+                    Spacer(modifier = Modifier.width(4.dp))
+
                     // Mode Toggle Switch
                     Box(
                         modifier = Modifier
@@ -168,6 +216,21 @@ fun MatchListScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
+            
+            if (state.dataSaverMode) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.tertiaryContainer)
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(Icons.Default.Speed, contentDescription = null, tint = MaterialTheme.colorScheme.onTertiaryContainer, modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Ultra-Low Data Mode is active.", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onTertiaryContainer, fontWeight = FontWeight.Bold)
+                }
+            }
+            
             TabRow(
                 selectedTabIndex = selectedTabIndex,
                 
@@ -256,6 +319,14 @@ fun MatchListScreen(
                         IdolHeader(state.idolName, state.wallpaperUri, onClick = onFanModeClick)
                     }
                     
+                    item {
+                        CricBotCompanion(
+                            match = null,
+                            idolName = state.idolName,
+                            modifier = Modifier.padding(bottom = 8.dp).padding(horizontal = 16.dp).fillMaxWidth()
+                        )
+                    }
+                    
 
                     
                     item {
@@ -322,8 +393,14 @@ fun MatchListScreen(
                 } else {
                     items(matchesToShow, key = { it.id }) { match ->
                         val isPreferred = state.preferredTeams.any { match.team1.contains(it, true) || match.team2.contains(it, true) }
+                        val customPred = state.matchPredictions[match.id]
                         MatchCard(
-                            match = match, 
+                            match = match,
+                            customPrediction = customPred,
+                            onPredictionClick = { 
+                                predictionInput = (customPred ?: 250).toString()
+                                showPredictionDialog = match 
+                            }, 
                             isPreferred = isPreferred, 
                             isPinned = match.id == state.pinnedMatchId,
                             onPinClick = { onPinClick(match) },

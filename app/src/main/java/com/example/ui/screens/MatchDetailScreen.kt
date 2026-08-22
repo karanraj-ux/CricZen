@@ -90,6 +90,9 @@ fun MatchDetailScreen(
             MatchCard(match = match, isPreferred = isPreferred, onClick = {})
             
             Spacer(modifier = Modifier.height(16.dp))
+            CricBotCompanion(match = match, modifier = Modifier.padding(horizontal = 24.dp))
+            
+            Spacer(modifier = Modifier.height(16.dp))
             OutlinedButton(
                 onClick = { onNewsClick(match.matchUrl) },
                 modifier = Modifier.height(56.dp).padding(horizontal = 24.dp).fillMaxWidth(),
@@ -110,7 +113,7 @@ fun MatchDetailScreen(
             ) {
                 Icon(Icons.Default.PictureInPicture, contentDescription = null)
                 Spacer(Modifier.width(8.dp))
-                Text("Minimize to Floating Player", fontWeight = FontWeight.Bold)
+                Text("Pop-out Score", fontWeight = FontWeight.Bold)
             }
             
             if (!pipHintShown) {

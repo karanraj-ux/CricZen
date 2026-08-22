@@ -17,12 +17,45 @@ object RssParser {
     
     private const val TAG = "RssParser"
 
+    
+    suspend fun fetchSniperMatch(matchId: String): List<RssItem> = withContext(Dispatchers.IO) {
+        val matches = mutableListOf<RssItem>()
+        val titles = mutableSetOf<String>()
+        val url = "https://www.cricbuzz.com/live-cricket-scores/$matchId"
+        try {
+            val headResponse = RetrofitClient.cricketService.checkHtml(url)
+            val newEtag = headResponse.headers()["ETag"] ?: ""
+            val newLastMod = headResponse.headers()["Last-Modified"] ?: ""
+            
+            val oldEtag = etagCache[url]
+            val oldLastMod = lastModifiedCache[url]
+            
+            val html = if ((newEtag.isNotEmpty() && newEtag == oldEtag) || 
+                           (newLastMod.isNotEmpty() && newLastMod == oldLastMod) && htmlCache.containsKey(url)) {
+                htmlCache[url]!!
+            } else {
+                val response = RetrofitClient.cricketService.getHtml(url)
+                val newHtml = response.string()
+                etagCache[url] = newEtag
+                lastModifiedCache[url] = newLastMod
+                htmlCache[url] = newHtml
+                newHtml
+            }
+            
+            // Re-use the existing HTML parser logic
+            parseCricbuzzHtml(html, url, matches, titles)
+        } catch (e: Exception) {
+            Log.e(TAG, "Sniper Fetch Error", e)
+        }
+        matches
+    }
+
     suspend fun fetchLiveMatches(): List<RssItem> = withContext(Dispatchers.IO) {
         val matches = mutableListOf<RssItem>()
         val titles = mutableSetOf<String>()
 
         fetchCricbuzzMatches(matches, titles)
-        fetchRssMatches(matches, titles)
+        // fetchRssMatches(matches, titles) - Disabled to prevent duplicates
 
         matches
     }
@@ -86,13 +119,39 @@ object RssParser {
         }
     }
 
+
+    // Smart Ping: cache ETag or Last-Modified to prevent redownloading identical data
+    private val etagCache = mutableMapOf<String, String>()
+    private val lastModifiedCache = mutableMapOf<String, String>()
+    private val htmlCache = mutableMapOf<String, String>()
+
     private suspend fun fetchCricbuzzMatches(matches: MutableList<RssItem>, titles: MutableSet<String>) {
+
         val urlsToTry = listOf(CRICBUZZ_URL, CRICBUZZ_RECENT_URL)
         
         for (cbUrl in urlsToTry) {
             try {
-                val response = RetrofitClient.cricketService.getHtml(cbUrl)
-                val html = response.string()
+                // Smart Ping: HEAD request first (0 bytes of body)
+                val headResponse = RetrofitClient.cricketService.checkHtml(cbUrl)
+                val newEtag = headResponse.headers()["ETag"] ?: ""
+                val newLastMod = headResponse.headers()["Last-Modified"] ?: ""
+                
+                val oldEtag = etagCache[cbUrl]
+                val oldLastMod = lastModifiedCache[cbUrl]
+                
+                val html = if ((newEtag.isNotEmpty() && newEtag == oldEtag) || 
+                               (newLastMod.isNotEmpty() && newLastMod == oldLastMod) && htmlCache.containsKey(cbUrl)) {
+                    // Nothing changed, 0 bytes downloaded
+                    htmlCache[cbUrl]!!
+                } else {
+                    val response = RetrofitClient.cricketService.getHtml(cbUrl)
+                    val newHtml = response.string()
+                    etagCache[cbUrl] = newEtag
+                    lastModifiedCache[cbUrl] = newLastMod
+                    htmlCache[cbUrl] = newHtml
+                    newHtml
+                }
+                
                 parseCricbuzzHtml(html, cbUrl, matches, titles)
             } catch (e: Exception) {
                 Log.e(TAG, "Error fetching Cricbuzz matches from $cbUrl", e)
@@ -236,25 +295,55 @@ object RssParser {
         if (matchScore != null) {
             val t1ScoreObj = matchScore.optJSONObject("team1Score")
             if (t1ScoreObj != null) {
-                val inngs1T1 = t1ScoreObj.optJSONObject("inngs1")
-                val inngs2T1 = t1ScoreObj.optJSONObject("inngs2")
-                val activeInngs = inngs2T1 ?: inngs1T1
-                if (activeInngs != null) {
-                    t1Runs = activeInngs.opt("runs")?.toString() ?: ""
-                    t1Wickets = activeInngs.opt("wickets")?.toString() ?: ""
-                    t1Overs = activeInngs.opt("overs")?.toString() ?: ""
+                val inngs1 = t1ScoreObj.optJSONObject("inngs1")
+                val inngs2 = t1ScoreObj.optJSONObject("inngs2")
+                
+                if (inngs1 != null && inngs2 != null) {
+                    val r1 = inngs1.opt("runs")?.toString() ?: ""
+                    val w1 = inngs1.opt("wickets")?.toString() ?: ""
+                    val s1 = if (w1.isNotEmpty() && w1 != "10") "$r1/$w1" else r1
+                    
+                    val r2 = inngs2.opt("runs")?.toString() ?: ""
+                    val w2 = inngs2.opt("wickets")?.toString() ?: ""
+                    val o2 = inngs2.opt("overs")?.toString() ?: ""
+                    
+                    t1Runs = "$s1 & $r2"
+                    t1Wickets = w2
+                    t1Overs = o2
+                } else {
+                    val activeInngs = inngs2 ?: inngs1
+                    if (activeInngs != null) {
+                        t1Runs = activeInngs.opt("runs")?.toString() ?: ""
+                        t1Wickets = activeInngs.opt("wickets")?.toString() ?: ""
+                        t1Overs = activeInngs.opt("overs")?.toString() ?: ""
+                    }
                 }
             }
             
             val t2ScoreObj = matchScore.optJSONObject("team2Score")
             if (t2ScoreObj != null) {
-                val inngs1T2 = t2ScoreObj.optJSONObject("inngs1")
-                val inngs2T2 = t2ScoreObj.optJSONObject("inngs2")
-                val activeInngs = inngs2T2 ?: inngs1T2
-                if (activeInngs != null) {
-                    t2Runs = activeInngs.opt("runs")?.toString() ?: ""
-                    t2Wickets = activeInngs.opt("wickets")?.toString() ?: ""
-                    t2Overs = activeInngs.opt("overs")?.toString() ?: ""
+                val inngs1 = t2ScoreObj.optJSONObject("inngs1")
+                val inngs2 = t2ScoreObj.optJSONObject("inngs2")
+                
+                if (inngs1 != null && inngs2 != null) {
+                    val r1 = inngs1.opt("runs")?.toString() ?: ""
+                    val w1 = inngs1.opt("wickets")?.toString() ?: ""
+                    val s1 = if (w1.isNotEmpty() && w1 != "10") "$r1/$w1" else r1
+                    
+                    val r2 = inngs2.opt("runs")?.toString() ?: ""
+                    val w2 = inngs2.opt("wickets")?.toString() ?: ""
+                    val o2 = inngs2.opt("overs")?.toString() ?: ""
+                    
+                    t2Runs = "$s1 & $r2"
+                    t2Wickets = w2
+                    t2Overs = o2
+                } else {
+                    val activeInngs = inngs2 ?: inngs1
+                    if (activeInngs != null) {
+                        t2Runs = activeInngs.opt("runs")?.toString() ?: ""
+                        t2Wickets = activeInngs.opt("wickets")?.toString() ?: ""
+                        t2Overs = activeInngs.opt("overs")?.toString() ?: ""
+                    }
                 }
             }
         }
@@ -333,12 +422,17 @@ object RssParser {
         }
     }
 
-    suspend fun fetchPlayerNews(playerName: String): List<com.example.model.NewsArticle> = withContext(Dispatchers.IO) {
+    suspend fun fetchPersonalizedNews(keywords: Set<String>): List<com.example.model.NewsArticle> = withContext(Dispatchers.IO) {
         val newsList = mutableListOf<com.example.model.NewsArticle>()
         try {
-            val query = if (playerName.isNotBlank()) "$playerName cricket" else "cricket match updates"
-            val encodedName = java.net.URLEncoder.encode(query, "UTF-8")
-            val url = "https://news.google.com/rss/search?q=$encodedName&hl=en-IN&gl=IN&ceid=IN:en"
+            val query = if (keywords.isNotEmpty()) {
+                val joined = keywords.take(3).joinToString(" OR ")
+                "($joined) cricket"
+            } else {
+                "cricket match updates"
+            }
+            val encodedQuery = java.net.URLEncoder.encode(query, "UTF-8")
+            val url = "https://news.google.com/rss/search?q=$encodedQuery&hl=en-IN&gl=IN&ceid=IN:en"
             
             val response = RetrofitClient.cricketService.getRssFeed(url)
             val xmlString = response.string()
@@ -390,7 +484,7 @@ object RssParser {
             newsList.sortByDescending { it.pubDate }
             return@withContext newsList.take(20)
         } catch (e: Exception) {
-            android.util.Log.e("RssParser", "Error fetching news for player: $playerName", e)
+            android.util.Log.e("RssParser", "Error fetching personalized news", e)
         }
         newsList
     }
