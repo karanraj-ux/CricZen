@@ -323,6 +323,7 @@ fun MatchListScreen(
                         CricBotCompanion(
                             match = null,
                             idolName = state.idolName,
+                            preferredTeams = state.preferredTeams,
                             modifier = Modifier.padding(bottom = 8.dp).padding(horizontal = 16.dp).fillMaxWidth()
                         )
                     }

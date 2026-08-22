@@ -31,7 +31,7 @@ enum class BotEmotion {
 }
 
 @Composable
-fun CricBotCompanion(match: Match? = null, idolName: String = "", modifier: Modifier = Modifier) {
+fun CricBotCompanion(match: Match? = null, idolName: String = "", preferredTeams: Set<String> = emptySet(), modifier: Modifier = Modifier) {
     var isPoked by remember { mutableStateOf(false) }
     var isDragged by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
@@ -245,12 +245,12 @@ fun CricBotCompanion(match: Match? = null, idolName: String = "", modifier: Modi
             
             Spacer(modifier = Modifier.width(16.dp))
             
-            val dialogueText = remember(emotion, match, idolName) {
+            val dialogueText = remember(emotion, match, idolName, preferredTeams) {
                 when (emotion) {
-                    BotEmotion.NEUTRAL -> if (match != null) "Watching the progress track... Awaiting the next big move!" else com.example.util.ZennyMemoryBank.getMemory(idolName = idolName)
+                    BotEmotion.NEUTRAL -> if (match != null) "Watching the progress track... Awaiting the next big move!" else com.example.util.ZennyMemoryBank.getMemory(idolName = idolName, preferredTeams = preferredTeams)
                     BotEmotion.HAPPY -> "Look at them go! Flying down the progress track!"
                     BotEmotion.NERVOUS -> "Phew... they are falling behind the line! Circuits are sweating."
-                    BotEmotion.SLEEPY -> com.example.util.ZennyMemoryBank.getMemory(matchStatus = match?.status ?: "rain", idolName = idolName)
+                    BotEmotion.SLEEPY -> com.example.util.ZennyMemoryBank.getMemory(matchStatus = match?.status ?: "rain", idolName = idolName, preferredTeams = preferredTeams)
                     BotEmotion.EXCITED -> "WICKET! The track stops here. Did you see that?"
                     BotEmotion.POKED -> "Hey! Stop poking my circuits! Just kidding, I love the attention. :)"
                     BotEmotion.DIZZY -> "Whoooa! You're stretching my sensors! Put me back!"
