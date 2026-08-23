@@ -20,6 +20,8 @@ import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -48,8 +50,11 @@ fun MatchListScreen(
     onFanModeClick: () -> Unit,
     onToggleMode: () -> Unit,
     onToggleDataSaver: () -> Unit,
-    onSavePrediction: (String, Int) -> Unit
+    onSavePrediction: (String, Int) -> Unit,
+    onSupportClick: () -> Unit
 ) {
+    val haptic = LocalHapticFeedback.current
+
     val tabs = listOf("All Matches", "My Teams")
     var selectedTabIndex by remember { mutableStateOf(0) }
     var showModeTooltip by remember { mutableStateOf(false) }
@@ -163,6 +168,21 @@ fun MatchListScreen(
                     }
                 },
                 actions = {
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(MaterialTheme.colorScheme.primaryContainer)
+                            .clickable { haptic.performHapticFeedback(HapticFeedbackType.LongPress); onSupportClick() }
+                            .padding(horizontal = 8.dp, vertical = 6.dp)
+                    ) {
+                        androidx.compose.foundation.layout.Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                            Text("☕", fontSize = 12.sp)
+                            Spacer(Modifier.width(4.dp))
+                            Text("Fund", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+
                     IconButton(onClick = { showModeTooltip = true }, modifier = Modifier.size(32.dp)) {
                         Icon(Icons.Default.Info, contentDescription = "Mode Info", tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
@@ -170,7 +190,7 @@ fun MatchListScreen(
                     
 
                     IconButton(
-                        onClick = { onToggleDataSaver() },
+                        onClick = { haptic.performHapticFeedback(HapticFeedbackType.LongPress); onToggleDataSaver() },
                         modifier = Modifier.size(32.dp)
                     ) {
                         Icon(if (state.dataSaverMode) Icons.Default.SignalCellularOff else Icons.Default.SignalCellular4Bar, contentDescription = "Data Saver", tint = if (state.dataSaverMode) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary)
@@ -187,7 +207,7 @@ fun MatchListScreen(
                                 else 
                                     Brush.horizontalGradient(listOf(MaterialTheme.colorScheme.outlineVariant, MaterialTheme.colorScheme.outline))
                             )
-                            .clickable { onToggleMode() }
+                            .clickable { haptic.performHapticFeedback(HapticFeedbackType.LongPress); onToggleMode() }
                             .padding(horizontal = 12.dp, vertical = 6.dp)
                     ) {
                         Text(
@@ -199,10 +219,10 @@ fun MatchListScreen(
                     }
                     
                     Spacer(modifier = Modifier.width(4.dp))
-                    IconButton(onClick = onSettingsClick) {
+                    IconButton(onClick = { haptic.performHapticFeedback(HapticFeedbackType.LongPress); onSettingsClick() }) {
                         Icon(Icons.Default.Settings, contentDescription = "Settings", tint = MaterialTheme.colorScheme.onBackground)
                     }
-                    IconButton(onClick = onRefresh) {
+                    IconButton(onClick = { haptic.performHapticFeedback(HapticFeedbackType.LongPress); onRefresh() }) {
                         Icon(Icons.Default.Refresh, contentDescription = "Refresh", tint = MaterialTheme.colorScheme.onBackground)
                     }
                 },

@@ -10,7 +10,7 @@ interface CricketService {
     @GET
     suspend fun getRssFeed(@Url url: String): ResponseBody
 
-    @GET
+    @HEAD
     suspend fun checkHtml(@Url url: String): Response<Void>
     @GET
     suspend fun getHtml(@Url url: String): ResponseBody

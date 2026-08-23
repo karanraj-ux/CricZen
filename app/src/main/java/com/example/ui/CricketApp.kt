@@ -69,6 +69,17 @@ fun CricketApp(
     var showSettings by remember { mutableStateOf(false) }
     var showFanModeDialog by remember { mutableStateOf(false) }
     var forceOnboarding by remember { mutableStateOf(false) }
+    var showDonationPopup by remember { mutableStateOf(false) }
+    val appOpensCount by viewModel.appOpensCount.collectAsState(initial = 0)
+    
+    LaunchedEffect(appOpensCount) {
+        if (appOpensCount > 0 && !isPipMode) {
+            // Trigger on 4th open, and every 15th open after that (19, 34, 49...)
+            if (appOpensCount == 4 || (appOpensCount > 4 && (appOpensCount - 4) % 15 == 0)) {
+                showDonationPopup = true
+            }
+        }
+    }
     var appUpdate by remember { mutableStateOf<AppUpdate?>(null) }
 
 
@@ -202,7 +213,8 @@ fun CricketApp(
                             onFanModeClick = { showFanModeDialog = true },
                             onToggleMode = { viewModel.updateAppMode(if (state.appMode == "Fan Mode") "Standard" else "Fan Mode") },
                             onToggleDataSaver = { viewModel.updateDataSaverMode(!state.dataSaverMode) },
-                            onSavePrediction = { matchId, pred -> viewModel.saveMatchPrediction(matchId, pred) }
+                            onSavePrediction = { matchId, pred -> viewModel.saveMatchPrediction(matchId, pred) },
+                            onSupportClick = { showDonationPopup = true }
                         )
                     }
                     
@@ -247,6 +259,10 @@ fun CricketApp(
                 },
                 initialMode = initialMode
             )
+        }
+        
+        if (showDonationPopup && !isPipMode) {
+            DonationDialog(onDismiss = { showDonationPopup = false })
         }
     }
 }
