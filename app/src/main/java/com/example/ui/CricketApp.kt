@@ -183,6 +183,7 @@ fun CricketApp(
                                 MatchDetailScreen(
                                     match = match,
                                     isPreferred = state.preferredTeams.any { match.team1.contains(it, true) || match.team2.contains(it, true) },
+                                    customPrediction = state.matchPredictions[match.id],
                                     pipHintShown = pipHintShown,
                                     pinnedMatchId = state.pinnedMatchId,
                                     playerNews = state.playerNews,

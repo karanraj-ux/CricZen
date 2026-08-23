@@ -45,6 +45,7 @@ import com.example.ui.screens.*
 @Composable
 fun MatchDetailScreen(
     match: Match,
+    customPrediction: Int? = null,
     isPreferred: Boolean,
     pipHintShown: Boolean,
     pinnedMatchId: String,
@@ -87,7 +88,7 @@ fun MatchDetailScreen(
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            MatchCard(match = match, isPreferred = isPreferred, onClick = {})
+            MatchCard(match = match, customPrediction = customPrediction, isPreferred = isPreferred, onClick = {})
             
             Spacer(modifier = Modifier.height(16.dp))
             CricBotCompanion(match = match, modifier = Modifier.padding(horizontal = 24.dp))

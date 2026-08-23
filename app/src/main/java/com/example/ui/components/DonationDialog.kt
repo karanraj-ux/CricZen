@@ -13,6 +13,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.example.util.performHeavyClick
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -28,7 +29,6 @@ import androidx.compose.ui.window.DialogProperties
 @Composable
 fun DonationDialog(onDismiss: () -> Unit) {
     val context = LocalContext.current
-    val haptic = LocalHapticFeedback.current
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -128,7 +128,7 @@ fun DonationDialog(onDismiss: () -> Unit) {
                 // Action Buttons
                 Button(
                     onClick = {
-                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        performHeavyClick(context)
                         try {
                             val uri = Uri.parse("upi://pay?pa=9942656450@kotakbank&pn=Karan%20Raj&cu=INR")
                             val intent = Intent(Intent.ACTION_VIEW, uri)
@@ -148,7 +148,7 @@ fun DonationDialog(onDismiss: () -> Unit) {
                 
                 OutlinedButton(
                     onClick = {
-                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        performHeavyClick(context)
                         try {
                             val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/karanraj-ux/CricZen.git"))
                             context.startActivity(intent)

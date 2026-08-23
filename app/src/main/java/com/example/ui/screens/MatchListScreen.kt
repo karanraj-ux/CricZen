@@ -20,6 +20,7 @@ import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.example.util.performHeavyClick
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.draw.clip
@@ -53,11 +54,10 @@ fun MatchListScreen(
     onSavePrediction: (String, Int) -> Unit,
     onSupportClick: () -> Unit
 ) {
-    val haptic = LocalHapticFeedback.current
 
+    val context = androidx.compose.ui.platform.LocalContext.current
     val tabs = listOf("All Matches", "My Teams")
     var selectedTabIndex by remember { mutableStateOf(0) }
-    var showModeTooltip by remember { mutableStateOf(false) }
     var showPredictionDialog by remember { mutableStateOf<Match?>(null) }
     var predictionInput by remember { mutableStateOf("") }
 
@@ -95,59 +95,7 @@ fun MatchListScreen(
             }
         )
     }
-
-    if (showModeTooltip) {
-        AlertDialog(
-            onDismissRequest = { showModeTooltip = false },
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-            shape = RoundedCornerShape(24.dp),
-            icon = {
-                Icon(
-                    Icons.Default.Star, 
-                    contentDescription = null, 
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(36.dp)
-                )
-            },
-            title = { 
-                Text("App Modes", fontWeight = FontWeight.ExtraBold, style = MaterialTheme.typography.titleLarge) 
-            },
-            text = { 
-                Column {
-                    Card(
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Column(modifier = Modifier.padding(12.dp)) {
-                            Text("Fan Mode", fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.onPrimaryContainer)
-                            Text("A premium, personalized layout with your idol's wallpaper, quick stat access, and custom themes.", fontSize = 14.sp, color = MaterialTheme.colorScheme.onPrimaryContainer)
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Card(
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Column(modifier = Modifier.padding(12.dp)) {
-                            Text("Standard Mode", fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.onSecondaryContainer)
-                            Text("A clean, minimalist traditional list of all cricket matches. Pure focus, zero visual clutter.", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSecondaryContainer)
-                        }
-                    }
-                }
-            },
-            confirmButton = {
-                Button(
-                    onClick = { showModeTooltip = false },
-                    shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                ) {
-                    Text("Got it", fontWeight = FontWeight.Bold)
-                }
-            }
-        )
-    }
-
-    val matchesToShow = if (selectedTabIndex == 1 && state.preferredTeams.isNotEmpty()) {
+val matchesToShow = if (selectedTabIndex == 1 && state.preferredTeams.isNotEmpty()) {
         state.matches.filter { match ->
             state.preferredTeams.any { pref ->
                 match.team1.contains(pref, ignoreCase = true) || match.team2.contains(pref, ignoreCase = true)
@@ -168,35 +116,6 @@ fun MatchListScreen(
                     }
                 },
                 actions = {
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(16.dp))
-                            .background(MaterialTheme.colorScheme.primaryContainer)
-                            .clickable { haptic.performHapticFeedback(HapticFeedbackType.LongPress); onSupportClick() }
-                            .padding(horizontal = 8.dp, vertical = 6.dp)
-                    ) {
-                        androidx.compose.foundation.layout.Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                            Text("☕", fontSize = 12.sp)
-                            Spacer(Modifier.width(4.dp))
-                            Text("Fund", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
-                        }
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    IconButton(onClick = { showModeTooltip = true }, modifier = Modifier.size(32.dp)) {
-                        Icon(Icons.Default.Info, contentDescription = "Mode Info", tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                    Spacer(modifier = Modifier.width(4.dp))
-                    
-
-                    IconButton(
-                        onClick = { haptic.performHapticFeedback(HapticFeedbackType.LongPress); onToggleDataSaver() },
-                        modifier = Modifier.size(32.dp)
-                    ) {
-                        Icon(if (state.dataSaverMode) Icons.Default.SignalCellularOff else Icons.Default.SignalCellular4Bar, contentDescription = "Data Saver", tint = if (state.dataSaverMode) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary)
-                    }
-                    Spacer(modifier = Modifier.width(4.dp))
-
                     // Mode Toggle Switch
                     Box(
                         modifier = Modifier
@@ -207,7 +126,7 @@ fun MatchListScreen(
                                 else 
                                     Brush.horizontalGradient(listOf(MaterialTheme.colorScheme.outlineVariant, MaterialTheme.colorScheme.outline))
                             )
-                            .clickable { haptic.performHapticFeedback(HapticFeedbackType.LongPress); onToggleMode() }
+                            .clickable { performHeavyClick(context); onToggleMode() }
                             .padding(horizontal = 12.dp, vertical = 6.dp)
                     ) {
                         Text(
@@ -219,10 +138,10 @@ fun MatchListScreen(
                     }
                     
                     Spacer(modifier = Modifier.width(4.dp))
-                    IconButton(onClick = { haptic.performHapticFeedback(HapticFeedbackType.LongPress); onSettingsClick() }) {
+                    IconButton(onClick = { performHeavyClick(context); onSettingsClick() }) {
                         Icon(Icons.Default.Settings, contentDescription = "Settings", tint = MaterialTheme.colorScheme.onBackground)
                     }
-                    IconButton(onClick = { haptic.performHapticFeedback(HapticFeedbackType.LongPress); onRefresh() }) {
+                    IconButton(onClick = { performHeavyClick(context); onRefresh() }) {
                         Icon(Icons.Default.Refresh, contentDescription = "Refresh", tint = MaterialTheme.colorScheme.onBackground)
                     }
                 },
