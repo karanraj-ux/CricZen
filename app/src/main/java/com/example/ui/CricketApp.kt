@@ -74,8 +74,8 @@ fun CricketApp(
     
     LaunchedEffect(appOpensCount) {
         if (appOpensCount > 0 && !isPipMode) {
-            // Trigger on 4th open, and every 15th open after that (19, 34, 49...)
-            if (appOpensCount == 4 || (appOpensCount > 4 && (appOpensCount - 4) % 15 == 0)) {
+            // Trigger on 4th open only
+            if (appOpensCount == 4) {
                 showDonationPopup = true
             }
         }

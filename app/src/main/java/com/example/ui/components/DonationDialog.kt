@@ -18,6 +18,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import android.widget.Toast
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.text.font.FontWeight
@@ -126,25 +127,7 @@ fun DonationDialog(onDismiss: () -> Unit) {
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // Action Buttons
-                Button(
-                    onClick = {
-                        performHeavyClick(context)
-                        try {
-                            val uri = Uri.parse("upi://pay?pa=9942656450@kotakbank&pn=Karan%20Raj&cu=INR")
-                            val intent = Intent(Intent.ACTION_VIEW, uri)
-                            context.startActivity(intent)
-                        } catch (e: Exception) {
-                            // Fallback if no UPI app
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text("☕ Support via UPI", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                }
                 
-                Spacer(modifier = Modifier.height(8.dp))
                 
                 OutlinedButton(
                     onClick = {

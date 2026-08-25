@@ -57,8 +57,15 @@ fun ChaseProgressBar(match: Match, customPrediction: Int? = null, onPredictionCl
                             modifier = Modifier.size(24.dp).clip(CircleShape),
                             contentScale = ContentScale.Crop
                         )
-                        Spacer(modifier = Modifier.width(6.dp))
+                    } else {
+                        Box(
+                            modifier = Modifier.size(24.dp).background(getTeamColor(match.team1), CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(match.team1.take(1).uppercase(), fontWeight = FontWeight.Bold, color = Color.White, fontSize = 12.sp)
+                        }
                     }
+                    Spacer(modifier = Modifier.width(6.dp))
                     Text(match.team1, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                 }
                 if (match.score1.isNotBlank()) {
@@ -86,15 +93,22 @@ fun ChaseProgressBar(match: Match, customPrediction: Int? = null, onPredictionCl
             Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.End) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(match.team2, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+                    Spacer(modifier = Modifier.width(6.dp))
                     val flag2 = getFlagUrl(match.team2)
                     if (flag2 != null) {
-                        Spacer(modifier = Modifier.width(6.dp))
                         AsyncImage(
                             model = flag2,
                             contentDescription = match.team2,
                             modifier = Modifier.size(24.dp).clip(CircleShape),
                             contentScale = ContentScale.Crop
                         )
+                    } else {
+                        Box(
+                            modifier = Modifier.size(24.dp).background(getTeamColor(match.team2), CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(match.team2.take(1).uppercase(), fontWeight = FontWeight.Bold, color = Color.White, fontSize = 12.sp)
+                        }
                     }
                 }
                 if (match.score2.isNotBlank()) {

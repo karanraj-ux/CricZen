@@ -94,7 +94,17 @@ object ZennyMemoryBank {
         "Shocking Fact: Adam Gilchrist took a wicket on his very first ball in the IPL and then never bowled again!",
         "Alec Stewart, born on 8-4-63, scored exactly 8463 Test runs in his career!",
         "Chris Gayle is the only player to hit a six off the very first ball of a Test match.",
-        "Dirk Nannes has represented both the Netherlands and Australia in international cricket."
+        "Dirk Nannes has represented both the Netherlands and Australia in international cricket.",
+        "Mass Number: Muttiah Muralitharan holds the record for the most international wickets, an incredible 1,347 across all formats!",
+        "Wild Rule: If a ball hits a fielder's discarded helmet on the ground, the batting team is awarded 5 penalty runs.",
+        "Did you know? The first ever official international cricket match was actually played between USA and Canada in 1844, not England vs Australia!",
+        "Shocking Fact: Sir Jack Hobbs scored 199 centuries in First-Class cricket. He scored exactly 61,760 runs!",
+        "Jim Laker is the only player to take 19 wickets in a single Test match (19/90 against Australia in 1956).",
+        "Record: Mahela Jayawardene holds the record for the most catches in international cricket with 440 catches.",
+        "Did you know? The bat with which Shahid Afridi scored the fastest ODI century (37 balls) in 1996 was actually borrowed from Waqar Younis, who got it from Sachin Tendulkar!",
+        "Shocking Fact: In a 1989 First-Class match in India, a player named Rajeev Nayyar batted for an agonizing 1,015 minutes to score 225 runs. That's nearly 17 hours at the crease!",
+        "Wild Fact: A match in 1921 between Warwickshire and Hampshire had all 11 players bowl at least one over in an innings.",
+        "Record: AB de Villiers holds the record for the fastest ODI century, taking just 31 balls against the West Indies in 2015."
     )
 
     fun getMemory(matchStatus: String = "", idolName: String = "", preferredTeams: Set<String> = emptySet()): String {

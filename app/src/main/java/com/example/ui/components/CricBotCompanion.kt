@@ -5,6 +5,7 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -163,7 +164,7 @@ fun CricBotCompanion(match: Match? = null, idolName: String = "", preferredTeams
                     .offset { IntOffset(dragOffset.value.x.roundToInt(), dragOffset.value.y.roundToInt()) }
                     .offset(x = xAnim.value.dp, y = yAnim.value.dp)
                     .scale(scaleAnim.value)
-                    .pointerInput(Unit) {
+                    .pointerInput("drag") {
                         detectDragGestures(
                             onDragStart = { isDragged = true },
                             onDragEnd = {
@@ -188,6 +189,24 @@ fun CricBotCompanion(match: Match? = null, idolName: String = "", preferredTeams
                                     val newX = (dragOffset.value.x + dragAmount.x).coerceIn(-150f, 150f)
                                     val newY = (dragOffset.value.y + dragAmount.y).coerceIn(-150f, 150f)
                                     dragOffset.snapTo(Offset(newX, newY))
+                                }
+                            }
+                        )
+                    }
+                    .pointerInput("tap") {
+                        detectTapGestures(
+                            onTap = {
+                                scope.launch {
+                                    isPoked = true
+                                    delay(2000)
+                                    isPoked = false
+                                }
+                            },
+                            onDoubleTap = {
+                                scope.launch {
+                                    isDragged = true // Reusing isDragged state for DIZZY to keep it simple, or we can use a new state. Let's just poke it harder!
+                                    delay(2000)
+                                    isDragged = false
                                 }
                             }
                         )

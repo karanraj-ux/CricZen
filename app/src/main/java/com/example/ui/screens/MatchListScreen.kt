@@ -270,9 +270,10 @@ val matchesToShow = if (selectedTabIndex == 1 && state.preferredTeams.isNotEmpty
 
                     
                     item {
-                        Column(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
-                            Text(
-                                "FAN FAVORITES", 
+                        Row(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                            Column(modifier = Modifier.weight(1f).padding(end = 12.dp)) {
+                                Text(
+                                    "FAN FAVORITES", 
                                 style = MaterialTheme.typography.labelMedium, 
                                 fontWeight = FontWeight.Bold, 
                                 color = MaterialTheme.colorScheme.primary,
@@ -301,6 +302,28 @@ val matchesToShow = if (selectedTabIndex == 1 && state.preferredTeams.isNotEmpty
                                             color = MaterialTheme.colorScheme.onBackground
                                         )
                                     }
+                                }
+                            }
+                        }
+                        Column(horizontalAlignment = Alignment.End) {
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(16.dp))
+                                        .background(MaterialTheme.colorScheme.primaryContainer)
+                                        .clickable { performHeavyClick(context); onSupportClick() }
+                                        .padding(horizontal = 12.dp, vertical = 8.dp)
+                                ) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Text("☕", fontSize = 14.sp)
+                                        Spacer(Modifier.width(6.dp))
+                                        Text("Support", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(12.dp))
+                                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable { performHeavyClick(context); onToggleDataSaver() }) {
+                                    Text("Sniper Mode", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
+                                    Spacer(Modifier.width(4.dp))
+                                    Icon(if (state.dataSaverMode) Icons.Default.SignalCellularOff else Icons.Default.SignalCellular4Bar, contentDescription = "Data Saver", tint = if (state.dataSaverMode) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
                                 }
                             }
                         }
