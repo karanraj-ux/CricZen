@@ -134,6 +134,28 @@ val matchesToShow = if (selectedTabIndex == 1 && state.preferredTeams.isNotEmpty
     }
     val topStories = remember(state.playerNews) { state.playerNews.take(8) }
 
+    // Match-day liveness for the idol header: is the idol's team (or the idol)
+    // in a LIVE game? (Kept outside the LazyColumn scope — remember needs a
+    // @Composable context, which LazyListScope doesn't provide.)
+    val idolLiveMatch = remember(state.matches, state.idolName, state.preferredTeams) {
+        state.matches.firstOrNull { m ->
+            m.matchState.contains("LIVE", true) && (
+                state.preferredTeams.any { pref ->
+                    com.karanrajux.criczen.data.CricketConstants.matchesPreferredTeam(pref, m.team1, m.team2)
+                } || (state.idolName.isNotBlank() &&
+                    (m.status.contains(state.idolName, true) ||
+                        m.notablePerformances.contains(state.idolName, true)))
+                )
+        }
+    }
+    val idolHighlight = remember(idolLiveMatch, state.idolName) {
+        idolLiveMatch?.notablePerformances
+            ?.split("|")
+            ?.firstOrNull { it.contains(state.idolName, true) }
+            ?.trim()
+            ?.removePrefix("★")?.trim()
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -283,25 +305,6 @@ val matchesToShow = if (selectedTabIndex == 1 && state.preferredTeams.isNotEmpty
                     }
                 }
                 if (state.appMode == "Fan Mode") {
-                    // Match-day liveness: is the idol's team (or the idol) in a LIVE game?
-                    val idolLiveMatch = remember(state.matches, state.idolName, state.preferredTeams) {
-                        state.matches.firstOrNull { m ->
-                            m.matchState.contains("LIVE", true) && (
-                                state.preferredTeams.any { pref ->
-                                    com.karanrajux.criczen.data.CricketConstants.matchesPreferredTeam(pref, m.team1, m.team2)
-                                } || (state.idolName.isNotBlank() &&
-                                    (m.status.contains(state.idolName, true) ||
-                                        m.notablePerformances.contains(state.idolName, true)))
-                                )
-                        }
-                    }
-                    val idolHighlight = remember(idolLiveMatch, state.idolName) {
-                        idolLiveMatch?.notablePerformances
-                            ?.split("|")
-                            ?.firstOrNull { it.contains(state.idolName, true) }
-                            ?.trim()
-                            ?.removePrefix("★")?.trim()
-                    }
                     item {
                         IdolHeader(
                             idolName = state.idolName,
