@@ -6,30 +6,47 @@ plugins {
   alias(libs.plugins.roborazzi)
 }
 android {
-  namespace = "com.example"
+  namespace = "com.karanrajux.criczen"
   compileSdk = 35
   defaultConfig {
-    applicationId = "com.aistudio.criclive.vxywz"
+    applicationId = "com.karanrajux.criczen"
     minSdk = 24
     targetSdk = 35
-    versionCode = 3
-    versionName = "1.2"
+    versionCode = 1
+    versionName = "1.0.0"
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
+  // Release signing: provide the keystore via local.properties or env vars.
+  //   criczen.keystore.path / CRICZEN_KEYSTORE_PATH  (default: <root>/criczen-release.keystore)
+  //   criczen.keystore.password / CRICZEN_KEYSTORE_PASSWORD
+  //   criczen.key.alias / CRICZEN_KEY_ALIAS          (default: criczen)
+  //   criczen.key.password / CRICZEN_KEY_PASSWORD    (default: same as keystore password)
+  // The keystore itself is NEVER committed (see .gitignore). Back it up safely —
+  // losing it means you can never ship an update to this app again.
+  //
+  // NOTE: the missing-keystore error is raised only when a release task actually
+  // runs (see taskGraph check at the bottom), so debug/CI smoke builds keep working.
+  val releaseKeystoreFile = file(
+    System.getenv("CRICZEN_KEYSTORE_PATH")
+      ?: (findProperty("criczen.keystore.path") as String? ?: "${rootDir}/criczen-release.keystore")
+  )
+  val releaseKeystorePassword: String? =
+    System.getenv("CRICZEN_KEYSTORE_PASSWORD") ?: findProperty("criczen.keystore.password") as String?
+  val releaseKeyAlias: String =
+    System.getenv("CRICZEN_KEY_ALIAS") ?: (findProperty("criczen.key.alias") as String? ?: "criczen")
+  val releaseKeyPassword: String? =
+    System.getenv("CRICZEN_KEY_PASSWORD") ?: (findProperty("criczen.key.password") as String? ?: releaseKeystorePassword)
+  val hasReleaseKeystore = releaseKeystoreFile.exists()
   signingConfigs {
     create("release") {
-      storeFile = file("${rootDir}/real-release.keystore")
-      storePassword = "password"
-      keyAlias = "release"
-      keyPassword = "password"
-      enableV1Signing = true
-      enableV2Signing = true
-    }
-    create("debugConfig") {
-      storeFile = file("${rootDir}/debug.keystore")
-      storePassword = "android"
-      keyAlias = "androiddebugkey"
-      keyPassword = "android"
+      if (hasReleaseKeystore) {
+        storeFile = releaseKeystoreFile
+        storePassword = releaseKeystorePassword
+        keyAlias = releaseKeyAlias
+        keyPassword = releaseKeyPassword
+        enableV1Signing = true
+        enableV2Signing = true
+      }
     }
   }
   buildTypes {
@@ -38,9 +55,9 @@ android {
       isMinifyEnabled = true
       isShrinkResources = true
       proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-      signingConfig = signingConfigs.getByName("debugConfig")
+      if (hasReleaseKeystore) signingConfig = signingConfigs.getByName("release")
     }
-    debug { signingConfig = signingConfigs.getByName("debugConfig") }
+    debug { /* AGP default debug signing */ }
   }
   compileOptions {
     sourceCompatibility = JavaVersion.VERSION_11
@@ -99,4 +116,28 @@ dependencies {
   debugImplementation(libs.androidx.compose.ui.test.manifest)
   debugImplementation(libs.androidx.compose.ui.tooling)
   "ksp"(libs.androidx.room.compiler)
+}
+
+// Refuse to build a release artifact without the real keystore —
+// a debug-signed "release" must never ship.
+gradle.taskGraph.whenReady {
+  val wantsRelease = allTasks.any {
+    it.name.equals("assembleRelease", ignoreCase = true) ||
+      it.name.equals("bundleRelease", ignoreCase = true)
+  }
+  if (wantsRelease) {
+    val ksFile = file(
+      System.getenv("CRICZEN_KEYSTORE_PATH")
+        ?: (findProperty("criczen.keystore.path") as String? ?: "${rootDir}/criczen-release.keystore")
+    )
+    if (!ksFile.exists()) {
+      throw GradleException(
+        "Release keystore not found: ${ksFile.absolutePath}\n" +
+          "Generate one with:\n" +
+          "  keytool -genkeypair -v -keystore criczen-release.keystore -alias criczen " +
+          "-keyalg RSA -keysize 2048 -validity 10000\n" +
+          "then point criczen.keystore.path (local.properties) or CRICZEN_KEYSTORE_PATH at it."
+      )
+    }
+  }
 }

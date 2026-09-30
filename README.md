@@ -1,8 +1,6 @@
 # CricZen 🏏
 > Find your focus. Follow your game.
 
-![CricZen Banner](assets/feature_graphic.png)
-
 CricZen is a minimalist, hyper-personalized cricket companion designed to cut through the noise of generic sports apps. Built specifically for Indian students and fans, it prioritizes **extreme battery efficiency, ultra-low data usage, and ad-free focus**.
 
 Instead of overwhelming you with endless tabs and betting ads, CricZen focuses strictly on what matters: **Your Teams. Your Players. Your Scores.**
@@ -23,9 +21,11 @@ Instead of overwhelming you with endless tabs and betting ads, CricZen focuses s
 * **Smart Parsing:** Efficiently parses live XML/HTML to extract only the most relevant match data.
 
 ## Screenshots 📸
+> Coming with the v1.0 release — dashboard, Fan Mode with Top Stories, and the home widget.
+
 | Dashboard | Fan Mode & News | Home Widget & PiP |
 |:---:|:---:|:---:|
-| <img src="assets/screenshot_standard.png" width="250"> | <img src="assets/screenshot_fanmode.png" width="250"> | <img src="assets/screenshot_dark.png" width="250"> |
+| *soon* | *soon* | *soon* |
 
 ## For Students & Developers 👨‍💻
 CricZen is fully open-source and built as a pristine example of modern Android development. 
@@ -36,9 +36,31 @@ CricZen is fully open-source and built as a pristine example of modern Android d
 * **Background Tasks:** WorkManager for Widget Updates
 
 ### Build Instructions
-1. Clone the repository: `git clone https://github.com/your-username/criczen.git`
+1. Clone the repository: `git clone https://github.com/karanraj-ux/CricZen.git`
 2. Open in Android Studio.
 3. Sync Gradle and hit Run!
+
+### Release builds (maintainers)
+Release APKs are signed with a private keystore that is **never committed**.
+Generate it once and keep it backed up — losing it means no future updates:
+
+```bash
+keytool -genkeypair -v -keystore criczen-release.keystore -alias criczen \
+  -keyalg RSA -keysize 2048 -validity 10000
+```
+
+Then either place it at the repo root as `criczen-release.keystore`, or point
+to it in `local.properties`:
+
+```properties
+criczen.keystore.path=/path/to/criczen-release.keystore
+criczen.keystore.password=<store password>
+criczen.key.alias=criczen
+criczen.key.password=<key password>
+```
+
+Build with `./gradlew assembleRelease`. CI builds releases automatically on
+every `v*` tag (see `.github/workflows/release.yml`).
 
 ## License 📜
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

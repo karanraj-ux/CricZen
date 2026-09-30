@@ -5,7 +5,7 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-  workflow_dispatch: 
+  workflow_dispatch:
 
 jobs:
   build:
@@ -20,28 +20,14 @@ jobs:
       with:
         java-version: '21'
         distribution: 'temurin'
-    - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v4
-      with:
-        gradle-version: 9.3.1
-        validate-wrappers: false
 
-
-    - name: Generate temporary debug keystore
+    - name: Build Debug APK (smoke check)
       run: |
-        keytool -genkey -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
-        mkdir -p ~/.android
-        cp debug.keystore ~/.android/debug.keystore
+        chmod +x gradlew
+        ./gradlew assembleDebug --no-daemon
 
-    - name: Build Release APK
-      run: gradle assembleRelease --no-daemon
-
-    - name: Rename APK
-      run: mv app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/CricLive.apk
-
-    # This modern wildcard expression safely locates and names your download folder without crashing
-    - name: Upload Built APKs
+    - name: Upload Debug APK
       uses: actions/upload-artifact@v4
       with:
-        name: CricLive-Distribution-Build
-        path: app/build/outputs/apk/release/*.apk
+        name: CricZen-Debug-Build
+        path: app/build/outputs/apk/debug/*.apk

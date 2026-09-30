@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">CricZen</string>
+    <string name="widget_desc">Live cricket scores for your favourite teams, right on your home screen.</string>
 </resources>
