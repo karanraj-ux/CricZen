@@ -21,11 +21,11 @@ Instead of overwhelming you with endless tabs and betting ads, CricZen focuses s
 * **Smart Parsing:** Efficiently parses live XML/HTML to extract only the most relevant match data.
 
 ## Screenshots 📸
-> Coming with the v1.0 release — dashboard, Fan Mode with Top Stories, and the home widget.
 
-| Dashboard | Fan Mode & News | Home Widget & PiP |
+| Fan Mode | Match Detail & News | Home Widget |
 |:---:|:---:|:---:|
-| *soon* | *soon* | *soon* |
+| <img src="screenshots/fan-mode.png" width="280" alt="Fan Mode with idol wallpaper and Zenny" /> | <img src="screenshots/match-detail.png" width="280" alt="Match detail with scorecard and news" /> | <img src="screenshots/widget.png" width="280" alt="Home screen live score widget" /> |
+| Idol wallpaper, Zenny (CricBot) facts, Fan Favorites | Full scorecard, pop-out score, related news | Live scores on your home screen |
 
 ## For Students & Developers 👨‍💻
 CricZen is fully open-source and built as a pristine example of modern Android development. 
