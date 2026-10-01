@@ -43,17 +43,7 @@ Jetpack Compose (Material 3) · MVVM + Clean Architecture · Room + DataStore ·
 1. Clone: `git clone https://github.com/karanraj-ux/CricZen.git`
 2. Open in Android Studio, sync Gradle, hit Run.
 
-### Signing release builds (maintainers)
-Release APKs are signed with a private keystore that is **never committed** — CI handles signing automatically on `v*` tags via GitHub Actions secrets. For a local signed build, generate a keystore and reference it in `local.properties`:
-
-```properties
-criczen.keystore.path=/path/to/criczen-release.keystore
-criczen.keystore.password=<store password>
-criczen.key.alias=criczen
-criczen.key.password=<key password>
-```
-
-then run `./gradlew assembleRelease`. Lose the keystore and no future updates can be signed — back it up.
+Release APKs are built and signed automatically by CI on every `v*` tag.
 
 ## License 📜
 MIT — see the [LICENSE](LICENSE) file for details.
