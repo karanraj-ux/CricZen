@@ -1,10 +1,12 @@
-CricZen is a free, open-source Android application that provides live cricket scores, match updates, and news. 
+Find your focus. Follow your game.
 
-Features:
-- Real-time live scores and commentary
-- Upcoming match schedules and series information
-- Picture-in-Picture (PiP) mode for floating scores
-- Offline caching for recently viewed matches
-- Clean, Material 3 design without ads or trackers
+CricZen is an open-source, ad-free cricket companion for Android. No clutter, no betting ads — just your teams, your players, your scores, gentle on battery and data.
 
-Perfect for cricket fans who want a fast, privacy-respecting, and lightweight app to follow their favorite teams.
+• Live scores dashboard with auto-refresh, offline caching, pinned matches, target predictions and run-chase progress bars
+• News that finds you: a personalized Top Stories rail, news woven into the match feed, and related news on every match page
+• Smart notifications for wickets, milestones and match events — league picks expand to franchises automatically
+• Fan Mode: set your idol's wallpaper as the app header, with a live match-day header, Fan Favorites, and Zenny (CricBot), an offline cricket historian
+• Home-screen widget, picture-in-picture pop-out score, dark mode and Data Saver mode
+• Full Cricbuzz scorecards open right inside the app
+
+100% free and open source (MIT). No accounts, no tracking, no ads.
