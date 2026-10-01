@@ -10,6 +10,13 @@ CricZen is an open-source, ad-free cricket companion for Android — live scores
 | <img src="screenshots/fan-mode.png" width="280" alt="Fan Mode with idol wallpaper and Zenny" /> | <img src="screenshots/match-detail.png" width="280" alt="Match detail with scorecard and news" /> | <img src="screenshots/widget.png" width="280" alt="Home screen live score widget" /> |
 | Idol wallpaper, Zenny (CricBot) facts, Fan Favorites | Full scorecard, pop-out score, related news | Live scores on your home screen |
 
+### 🖥️ Full scorecard, without leaving the app
+
+| | |
+|:---:|:---:|
+| <img src="screenshots/full-scorecard-webview.png" width="200" alt="Cricbuzz full scorecard opened inside the app" /> | <img src="screenshots/match-detail-2nd-odi.png" width="200" alt="Match detail tracking the record 406-run chase" /> |
+| Tap "View Full Scorecard" — Cricbuzz opens right inside CricZen | The record chase, tracked live: WI 405/7, IND 406/2 |
+
 ## Features
 
 ### 📊 Live scores dashboard
