@@ -1,24 +1,7 @@
 # CricZen 🏏
 > Find your focus. Follow your game.
 
-CricZen is a minimalist, hyper-personalized cricket companion designed to cut through the noise of generic sports apps. Built specifically for Indian students and fans, it prioritizes **extreme battery efficiency, ultra-low data usage, and ad-free focus**.
-
-Instead of overwhelming you with endless tabs and betting ads, CricZen focuses strictly on what matters: **Your Teams. Your Players. Your Scores.**
-
-## Why CricZen? ✨
-- 🧘 **Zero Clutter**: No bloated menus, no irrelevant news. Just a clean, zen-like interface.
-- 🔋 **Ultra-Low Data & Battery Mode**: Features a custom "Sniper Fetch" engine and "Memory Lock" anti-spam protocol. In Data Saver mode, the app downloads micro-scorecards (<1KB) and completely hibernates when there is no new action, saving 100% of background data and battery.
-- 🎯 **Hyper-Personalized "My Team" Focus**: Pick your teams and let the app filter out the noise.
-- 🤖 **Zenny's Memory Bank**: A bundled offline cricket historian! When no matches are live, or during rain delays, Zenny shares "On This Day" milestones and specific trivia about your favorite players using zero internet data.
-- 🖼️ **Idol Wallpaper & Fan Mode**: Set your favorite player as your app background.
-- 📱 **Home Screen Widget**: Track live scores directly from your home screen with a beautiful Glance widget.
-- 🪟 **Picture-in-Picture (PiP)**: Keep a floating mini-scorecard active while you chat or browse.
-- 📊 **Glassmorphism Target Track**: Watch run chases on a premium visual progress bar that glows when the chase gets tense and bursts in gold when a team crushes the target!
-
-## Features at a Glance 🚀
-* **Modern UI:** Built fully in Jetpack Compose with Material 3.
-* **Offline Resilience:** Room database caching keeps your scores accessible in poor networks.
-* **Smart Parsing:** Efficiently parses live XML/HTML to extract only the most relevant match data.
+CricZen is an open-source, ad-free cricket companion for Android — live scores, personalized news, smart notifications, and a Fan Mode built around your favourite player. No clutter, no betting ads, and gentle on battery and data.
 
 ## Screenshots 📸
 
@@ -27,30 +10,41 @@ Instead of overwhelming you with endless tabs and betting ads, CricZen focuses s
 | <img src="screenshots/fan-mode.png" width="280" alt="Fan Mode with idol wallpaper and Zenny" /> | <img src="screenshots/match-detail.png" width="280" alt="Match detail with scorecard and news" /> | <img src="screenshots/widget.png" width="280" alt="Home screen live score widget" /> |
 | Idol wallpaper, Zenny (CricBot) facts, Fan Favorites | Full scorecard, pop-out score, related news | Live scores on your home screen |
 
-## For Students & Developers 👨‍💻
-CricZen is fully open-source and built as a pristine example of modern Android development. 
-* **UI:** Jetpack Compose, Glance (App Widgets)
-* **Architecture:** MVVM, Clean Architecture, Repository Pattern
-* **Local Storage:** Room Database, Preferences DataStore
-* **Networking:** Retrofit, OkHttp, Custom Sniper HTML/XML Parsing
-* **Background Tasks:** WorkManager for Widget Updates
+## Features
 
-### Build Instructions
-1. Clone the repository: `git clone https://github.com/karanraj-ux/CricZen.git`
-2. Open in Android Studio.
-3. Sync Gradle and hit Run!
+### 📊 Live scores dashboard
+- Live scores with auto-refresh, pull-to-refresh, and offline caching for poor networks
+- Pin matches, set target predictions, and follow run chases on a live progress bar
+- Search across matches and teams; **My Teams** tab with preferred-match sorting
 
-### Release builds (maintainers)
-Release APKs are signed with a private keystore that is **never committed**.
-Generate it once and keep it backed up — losing it means no future updates:
+### 📰 News that finds you
+- **Top Stories** rail on the dashboard, personalized to your teams, players, and idol
+- News cards woven into the match feed, plus related news on every match page
 
-```bash
-keytool -genkeypair -v -keystore criczen-release.keystore -alias criczen \
-  -keyalg RSA -keysize 2048 -validity 10000
-```
+### 🔔 Notifications that understand cricket
+- Wicket, milestone, and match-event alerts for the teams you follow
+- League picks expand to franchises — follow "IPL" and actually get MI / CSK / RCB alerts
 
-Then either place it at the repo root as `criczen-release.keystore`, or point
-to it in `local.properties`:
+### ⭐ Fan Mode
+- Set your idol's wallpaper as the app header
+- On match days the header comes alive: pulsing border, live score chip, and your idol's live highlight line
+- Fan Favorites, plus **Zenny (CricBot)** — an offline cricket historian serving facts and trivia during breaks and rain delays
+
+### 📱 Everyday extras
+- Home-screen widget with live scores at a glance
+- Picture-in-Picture pop-out score that floats while you chat or browse
+- Dark mode and Data Saver (Sniper) mode for low-data days
+- In-app updates delivered straight from GitHub Releases
+
+## Built with
+Jetpack Compose (Material 3) · MVVM + Clean Architecture · Room + DataStore · Retrofit/OkHttp · Glance widgets · WorkManager
+
+## Build it yourself
+1. Clone: `git clone https://github.com/karanraj-ux/CricZen.git`
+2. Open in Android Studio, sync Gradle, hit Run.
+
+### Signing release builds (maintainers)
+Release APKs are signed with a private keystore that is **never committed** — CI handles signing automatically on `v*` tags via GitHub Actions secrets. For a local signed build, generate a keystore and reference it in `local.properties`:
 
 ```properties
 criczen.keystore.path=/path/to/criczen-release.keystore
@@ -59,8 +53,7 @@ criczen.key.alias=criczen
 criczen.key.password=<key password>
 ```
 
-Build with `./gradlew assembleRelease`. CI builds releases automatically on
-every `v*` tag (see `.github/workflows/release.yml`).
+then run `./gradlew assembleRelease`. Lose the keystore and no future updates can be signed — back it up.
 
 ## License 📜
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT — see the [LICENSE](LICENSE) file for details.
